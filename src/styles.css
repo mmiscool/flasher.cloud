@@ -80,6 +80,7 @@ button {
   max-width: 100%;
   aspect-ratio: 1;
   object-fit: contain;
+  box-sizing: border-box;
 }
 
 .brand span {
@@ -148,14 +149,14 @@ main {
 .hero {
   min-height: min(43rem, calc(100vh - 3rem));
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 34rem);
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 30rem);
   align-items: center;
-  gap: clamp(1.5rem, 5vw, 5rem);
+  gap: clamp(1.5rem, 4vw, 4rem);
   padding-bottom: 2rem;
 }
 
 .hero-copy {
-  max-width: 55rem;
+  max-width: 50rem;
 }
 
 h1,
@@ -167,7 +168,7 @@ p {
 
 h1 {
   margin-bottom: 1rem;
-  font-size: clamp(3rem, 7vw, 6.8rem);
+  font-size: clamp(3rem, 5.8vw, 6.1rem);
   line-height: 0.94;
   letter-spacing: 0;
 }
@@ -199,6 +200,7 @@ h3 {
   width: 100%;
   max-height: 82vh;
   object-fit: contain;
+  box-sizing: border-box;
   filter: drop-shadow(0 0 2rem rgba(36, 213, 238, 0.18));
 }
 

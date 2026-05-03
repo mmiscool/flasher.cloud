@@ -3,7 +3,7 @@ import "@xterm/xterm/css/xterm.css";
 import { WebDFU } from "dfu";
 import { ESPLoader, Transport } from "esptool-js";
 import "esp-web-tools/dist/web/install-button.js";
-import logoUrl from "../logo-option4-transparent.png";
+import logoUrl from "../logo.svg";
 import "./styles.css";
 
 const flashers = {
