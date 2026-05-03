@@ -272,7 +272,9 @@ select:disabled {
 
 .status-card,
 .family-tile,
-.panel {
+.panel,
+.license-card,
+.reference-card {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(16, 24, 32, 0.82);
@@ -409,6 +411,46 @@ select:disabled {
 }
 
 .family-tile p {
+  color: #bdd0d8;
+}
+
+.license-grid,
+.reference-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.license-card,
+.reference-card {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.license-card h2 {
+  margin-bottom: 0.5rem;
+  font-size: clamp(1.5rem, 2.4vw, 2.2rem);
+}
+
+.license-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.license-actions .button {
+  min-height: 2.35rem;
+  padding-inline: 0.75rem;
+  font-size: 0.88rem;
+}
+
+.reference-card {
+  min-height: 11rem;
+}
+
+.reference-card p {
   color: #bdd0d8;
 }
 
@@ -599,7 +641,9 @@ progress {
     max-width: 28rem;
   }
 
-  .tile-grid {
+  .tile-grid,
+  .license-grid,
+  .reference-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -612,7 +656,9 @@ progress {
   .device-list,
   .utility-nav,
   .status-strip,
-  .tile-grid {
+  .tile-grid,
+  .license-grid,
+  .reference-grid {
     grid-template-columns: 1fr;
   }
 

@@ -268,6 +268,72 @@ const deviceTypes = [
   ["Generic UART", "serial-terminal"],
 ];
 
+const projectLicenses = [
+  {
+    name: "esp-web-tools",
+    version: "10.2.1",
+    license: "Apache-2.0",
+    usedFor: "ESP manifest installer web component.",
+    project: "https://github.com/esphome/esp-web-tools",
+    npm: "https://www.npmjs.com/package/esp-web-tools",
+    licenseUrl: "https://github.com/esphome/esp-web-tools/blob/main/LICENSE",
+  },
+  {
+    name: "esptool-js",
+    version: "0.6.0",
+    license: "Apache-2.0",
+    usedFor: "Raw Espressif ROM bootloader flashing over Web Serial.",
+    project: "https://github.com/espressif/esptool-js",
+    npm: "https://www.npmjs.com/package/esptool-js",
+    licenseUrl: "https://github.com/espressif/esptool-js/blob/main/LICENSE",
+  },
+  {
+    name: "dfu",
+    version: "0.1.5",
+    license: "MIT",
+    usedFor: "WebUSB DFU and DfuSe firmware download workflow.",
+    project: "https://github.com/Flipper-Zero/webdfu",
+    npm: "https://www.npmjs.com/package/dfu",
+    licenseUrl: "https://github.com/Flipper-Zero/webdfu/blob/master/LICENSE",
+  },
+  {
+    name: "dapjs",
+    version: "2.3.0",
+    license: "MIT",
+    usedFor: "CMSIS-DAP / DAPLink probe flashing over WebUSB.",
+    project: "https://github.com/ARMmbed/dapjs",
+    npm: "https://www.npmjs.com/package/dapjs",
+    licenseUrl: "https://github.com/ARMmbed/dapjs/blob/master/LICENSE",
+  },
+  {
+    name: "@xterm/xterm",
+    version: "6.0.0",
+    license: "MIT",
+    usedFor: "Hosted serial terminal rendering and keyboard interaction.",
+    project: "https://github.com/xtermjs/xterm.js",
+    npm: "https://www.npmjs.com/package/@xterm/xterm",
+    licenseUrl: "https://github.com/xtermjs/xterm.js/blob/master/LICENSE",
+  },
+  {
+    name: "Vite",
+    version: "8.0.10",
+    license: "MIT",
+    usedFor: "Local development server and production build tooling.",
+    project: "https://github.com/vitejs/vite",
+    npm: "https://www.npmjs.com/package/vite",
+    licenseUrl: "https://github.com/vitejs/vite/blob/main/LICENSE",
+  },
+];
+
+const standardsAndReferences = [
+  ["Web Serial API", "Browser serial transport for ESP, STM, AVR, UART senders, and terminal pages.", "https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API"],
+  ["WebUSB API", "Browser USB transport for DFU and DAPLink pages.", "https://developer.mozilla.org/en-US/docs/Web/API/USB"],
+  ["UF2 file format", "UF2 validation and bootloader assistant reference.", "https://github.com/microsoft/uf2"],
+  ["USB DFU 1.1 specification", "USB Device Firmware Upgrade protocol reference.", "https://www.usb.org/document-library/device-firmware-upgrade-11-new-version-31-aug-2004"],
+  ["STM AN3155", "STM USART bootloader command reference.", "https://www.st.com/resource/en/application_note/cd00264342.pdf"],
+  ["serialterminal.com", "Standalone terminal property linked from the hosted terminal page.", "https://serialterminal.com"],
+];
+
 const supportRows = [
   ["Secure context", () => window.isSecureContext, "HTTPS or localhost"],
   ["Web Serial", () => "serial" in navigator, "ESP, UART, bootloader reset"],
@@ -289,6 +355,7 @@ function currentRoute() {
   const hash = window.location.hash || "#/";
   const parts = hash.replace(/^#\/?/, "").split("/").filter(Boolean);
   if (parts[0] === "flasher" && flashers[parts[1]]) return { name: "flasher", id: parts[1] };
+  if (parts[0] === "licenses") return { name: "licenses" };
   return { name: "home" };
 }
 
@@ -298,13 +365,19 @@ function renderRoute() {
   app.innerHTML = `
     <div class="app-shell">
       ${renderSidebar(route)}
-      <main>${route.name === "flasher" ? renderFlasherPage(route.id) : renderHomePage()}</main>
+      <main>${renderMainRoute(route)}</main>
     </div>
   `;
 
   if (route.name === "flasher") {
     flashers[route.id].bind();
   }
+}
+
+function renderMainRoute(route) {
+  if (route.name === "flasher") return renderFlasherPage(route.id);
+  if (route.name === "licenses") return renderLicensesPage();
+  return renderHomePage();
 }
 
 function renderSidebar(route) {
@@ -329,6 +402,10 @@ function renderSidebar(route) {
             `,
           )
           .join("")}
+        <a class="${route.name === "licenses" ? "active" : ""}" href="#/licenses">
+          <span>Licenses & projects</span>
+          <small>Open source</small>
+        </a>
       </nav>
       <div class="rail-title">${deviceTitle}</div>
       <nav class="device-list" aria-label="Supported device types">
@@ -344,6 +421,70 @@ function renderSidebar(route) {
           .join("")}
       </nav>
     </aside>
+  `;
+}
+
+function renderLicensesPage() {
+  return `
+    <section class="flasher-page">
+      <header class="page-header">
+        <p class="eyebrow">Open source notices</p>
+        <h1>Licenses & projects</h1>
+        <p class="lede">
+          flasher.cloud hosts browser flashing utilities built on open source packages, browser APIs,
+          protocol specifications, and related reference projects. The table below lists the main
+          dependencies used directly by this site.
+        </p>
+      </header>
+
+      <section class="license-grid" aria-label="Project licenses">
+        ${projectLicenses.map(projectLicenseCard).join("")}
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Standards and references</p>
+          <h2>Protocol and API links</h2>
+          <p class="body-copy">
+            These are not bundled as site dependencies, but they document the browser APIs and firmware
+            formats used by the hosted utilities.
+          </p>
+        </div>
+        <div class="reference-grid">
+          ${standardsAndReferences
+            .map(
+              ([name, description, href]) => `
+                <a class="reference-card" href="${href}">
+                  <h3>${name}</h3>
+                  <p>${description}</p>
+                </a>
+              `,
+            )
+            .join("")}
+        </div>
+      </section>
+    </section>
+  `;
+}
+
+function projectLicenseCard(project) {
+  return `
+    <article class="license-card">
+      <div>
+        <p class="eyebrow">${project.license}</p>
+        <h2>${project.name}</h2>
+        <p class="body-copy">${project.usedFor}</p>
+      </div>
+      <dl class="device-details">
+        <div><dt>Version</dt><dd>${project.version}</dd></div>
+        <div><dt>License</dt><dd>${project.license}</dd></div>
+      </dl>
+      <div class="license-actions">
+        <a class="button secondary" href="${project.project}">Project</a>
+        <a class="button secondary" href="${project.npm}">NPM</a>
+        <a class="button ghost" href="${project.licenseUrl}">License text</a>
+      </div>
+    </article>
   `;
 }
 
