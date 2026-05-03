@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terminal Green - flasher.cloud</title>
+    <link rel="stylesheet" href="./style-options.css" />
+  </head>
+  <body class="terminal">
+    <div class="option-shell">
+      <aside class="rail">
+        <a class="brand" href="./siteStyleOptions.html"><img src="./logo.svg" alt="" /><span>flasher.cloud</span></a>
+        <ul class="nav-list">
+          <li><a href="#"><span>$ esp-manifest</span><small>serial</small></a></li>
+          <li><a href="#"><span>$ esp-write-bin</span><small>serial</small></a></li>
+          <li><a href="#"><span>$ dfu-download</span><small>webusb</small></a></li>
+          <li><a href="#"><span>$ uf2-check</span><small>file</small></a></li>
+          <li><a href="#"><span>$ serial-term</span><small>tty</small></a></li>
+        </ul>
+        <p class="eyebrow">Targets</p>
+        <ul class="device-list">
+          <li><a href="#"><span>esp32c3</span><small>ready</small></a></li>
+          <li><a href="#"><span>rp2040</span><small>ready</small></a></li>
+          <li><a href="#"><span>stm32h7</span><small>ready</small></a></li>
+          <li><a href="#"><span>uart</span><small>ready</small></a></li>
+        </ul>
+      </aside>
+      <main class="stage">
+        <section class="hero">
+          <div>
+            <p class="eyebrow">No install. No native app.</p>
+            <h1>&gt; flash --from-browser</h1>
+            <p>
+              A terminal-forward direction for users who live in logs. The page still exposes clear controls, but the
+              personality comes from command output, concise labels, and high-contrast state.
+            </p>
+            <div class="actions"><a class="button" href="#">Run connect</a><a class="button" href="#">Inspect log</a></div>
+          </div>
+          <img class="hero-logo" src="./logo.svg" alt="flasher.cloud logo" />
+        </section>
+        <section class="workbench">
+          <aside class="panel control-stack">
+            <p class="eyebrow">session</p>
+            <label class="field">device<span>/dev/webserial0</span></label>
+            <label class="field">chip<span>detect on connect</span></label>
+            <label class="field">image<span>firmware.bin</span></label>
+            <div class="toolbar"><button>connect</button><button>write</button></div>
+          </aside>
+          <pre class="console">flasher.cloud tty0
+secure-context ........ ok
+web-serial ............ ok
+web-usb ............... ok
+waiting for bootloader  _</pre>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

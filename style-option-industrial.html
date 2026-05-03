@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Industrial Bench - flasher.cloud</title>
+    <link rel="stylesheet" href="./style-options.css" />
+  </head>
+  <body class="industrial">
+    <div class="option-shell">
+      <aside class="rail">
+        <a class="brand" href="./siteStyleOptions.html"><img src="./logo.svg" alt="" /><span>flasher.cloud</span></a>
+        <ul class="nav-list">
+          <li><a href="#"><span>Firmware manifest</span><small>Line A</small></a></li>
+          <li><a href="#"><span>Raw BIN station</span><small>Line B</small></a></li>
+          <li><a href="#"><span>USB DFU station</span><small>Line C</small></a></li>
+          <li><a href="#"><span>UF2 prep</span><small>Line D</small></a></li>
+          <li><a href="#"><span>Serial diagnostics</span><small>QA</small></a></li>
+        </ul>
+        <p class="eyebrow">Hardware</p>
+        <ul class="device-list">
+          <li><a href="#"><span>ESP32-P4</span><small>serial</small></a></li>
+          <li><a href="#"><span>STM32F4</span><small>dfu</small></a></li>
+          <li><a href="#"><span>CH32V</span><small>dfu</small></a></li>
+          <li><a href="#"><span>Teensy</span><small>serial</small></a></li>
+        </ul>
+      </aside>
+      <main class="stage">
+        <section class="hero">
+          <div>
+            <p class="eyebrow">Production-ready browser flashing</p>
+            <h1>Firmware tools for the hardware bench.</h1>
+            <p>
+              A rugged hardware-shop direction with amber controls, grid texture, and compact operator panels. It
+              feels less SaaS and more like lab equipment.
+            </p>
+            <div class="actions"><a class="button" href="#">Connect station</a><a class="button" href="#">Open checklist</a></div>
+          </div>
+          <img class="hero-logo" src="./logo.svg" alt="flasher.cloud logo" />
+        </section>
+        <section class="status-grid">
+          <article class="status"><h3>Station</h3><p>USB access available</p></article>
+          <article class="status"><h3>Recipe</h3><p>Firmware offsets configured</p></article>
+          <article class="status"><h3>Audit</h3><p>Session log armed</p></article>
+        </section>
+        <section class="workbench">
+          <aside class="panel control-stack">
+            <p class="eyebrow">Flash recipe</p>
+            <label class="field">Board family<span>ESP32-S3 production</span></label>
+            <label class="field">Transport<span>Web Serial</span></label>
+            <label class="field">Action<span>Erase, write, verify</span></label>
+            <div class="toolbar"><button>Arm</button><button>Execute</button></div>
+          </aside>
+          <pre class="console">CHECK  secure context
+CHECK  browser transport
+WAIT   operator connects target
+READY  station armed</pre>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

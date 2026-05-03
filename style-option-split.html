@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Split Console - flasher.cloud</title><link rel="stylesheet" href="./style-options.css" /></head>
+  <body class="split">
+    <main class="split-shell">
+      <section class="split-doc">
+        <img class="split-logo" src="./logo.svg" alt="" />
+        <p class="eyebrow">Docs beside the session</p>
+        <h1>Read, connect, flash, verify.</h1>
+        <p>This option keeps the explanation and references next to a persistent terminal. It is built for advanced users who need context while debugging.</p>
+        <h2>Current utility</h2><p>ESP raw BIN flasher using esptool-js over Web Serial.</p>
+      </section>
+      <section class="split-console">
+        <p class="eyebrow">Live session</p>
+        <pre class="console">flasher.cloud session
+browser: secure context ok
+serial: navigator.serial present
+usb: navigator.usb present
+
+connect > select port
+detect  > waiting for bootloader
+write   > ready</pre>
+      </section>
+    </main>
+  </body>
+</html>

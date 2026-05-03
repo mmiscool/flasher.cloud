@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mobile Console - flasher.cloud</title>
+    <link rel="stylesheet" href="./style-options.css" />
+  </head>
+  <body class="mobile">
+    <main class="phone-frame">
+      <div class="phone-screen">
+        <header class="mobile-top">
+          <img src="./logo.svg" alt="" />
+          <a class="button" href="./siteStyleOptions.html">Options</a>
+        </header>
+        <section>
+          <p class="eyebrow">Pocket workbench</p>
+          <h1>Flash from a compact console.</h1>
+        </section>
+        <section class="control-stack">
+          <article class="mobile-card">
+            <h2>ESP raw BIN</h2>
+            <p>Web Serial ready. Choose firmware, set offset, flash, and watch the log.</p>
+          </article>
+          <article class="mobile-card">
+            <h2>Connection</h2>
+            <p>Secure context ready. WebUSB and WebSerial checks pass.</p>
+          </article>
+          <article class="mobile-card">
+            <h2>Session log</h2>
+            <pre class="console">ready
+waiting for device
+bootloader reset armed</pre>
+          </article>
+          <div class="mobile-actions"><a class="button" href="#">Connect</a><a class="button" href="#">Flash</a></div>
+        </section>
+        <nav class="bottom-tabs"><span>ESP</span><span>DFU</span><span>UF2</span><span>TTY</span></nav>
+      </div>
+    </main>
+  </body>
+</html>

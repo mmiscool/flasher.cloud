@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Command Center - flasher.cloud</title>
+    <link rel="stylesheet" href="./style-options.css" />
+  </head>
+  <body class="command">
+    <div class="option-shell">
+      <aside class="rail">
+        <a class="brand" href="./siteStyleOptions.html"><img src="./logo.svg" alt="" /><span>flasher.cloud</span></a>
+        <ul class="nav-list">
+          <li><a href="#"><span>ESP manifest installer</span><small>Web Serial</small></a></li>
+          <li><a href="#"><span>ESP raw BIN flasher</span><small>Web Serial</small></a></li>
+          <li><a href="#"><span>DFU / DfuSe flasher</span><small>WebUSB</small></a></li>
+          <li><a href="#"><span>UF2 bootloader assistant</span><small>File + Serial</small></a></li>
+          <li><a href="#"><span>Serial terminal</span><small>Web Serial</small></a></li>
+        </ul>
+        <p class="eyebrow">Supported device types</p>
+        <ul class="device-list">
+          <li><a href="#"><span>ESP32-S3</span><small>ESP BIN</small></a></li>
+          <li><a href="#"><span>RP2040</span><small>UF2</small></a></li>
+          <li><a href="#"><span>STM32 DFU</span><small>DFU</small></a></li>
+          <li><a href="#"><span>Generic UART</span><small>Terminal</small></a></li>
+        </ul>
+      </aside>
+      <main class="stage">
+        <section class="hero">
+          <div>
+            <p class="eyebrow">Hosted WebSerial and WebUSB flashing utilities</p>
+            <h1>Flash microcontrollers from the browser.</h1>
+            <p>
+              A focused command surface for firmware installs, raw binary flashing, DFU downloads, UF2 preparation,
+              and serial diagnostics.
+            </p>
+            <div class="actions"><a class="button" href="#">Start flashing</a><a class="button" href="#">View flashers</a></div>
+          </div>
+          <img class="hero-logo" src="./logo.svg" alt="flasher.cloud logo" />
+        </section>
+        <section class="status-grid">
+          <article class="status"><h3>Secure context</h3><p>Ready - HTTPS or localhost</p></article>
+          <article class="status"><h3>Web Serial</h3><p>Ready - ESP, UART, bootloader reset</p></article>
+          <article class="status"><h3>WebUSB</h3><p>Ready - DFU and descriptor access</p></article>
+        </section>
+        <section class="workbench">
+          <aside class="panel control-stack">
+            <p class="eyebrow">ESP raw BIN flasher</p>
+            <label class="field">Port<span>USB Serial: disconnected</span></label>
+            <label class="field">Baud<span>921600</span></label>
+            <label class="field">Offset<span>0x10000</span></label>
+            <div class="toolbar"><button>Connect</button><button>Flash</button></div>
+          </aside>
+          <pre class="console">[ready] Select a port and firmware image.
+[hint] Bootloader reset is available for ESP-family boards.
+[idle] Waiting for device...</pre>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

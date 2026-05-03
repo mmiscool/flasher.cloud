@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Mission Control - flasher.cloud</title><link rel="stylesheet" href="./style-options.css" /></head>
+  <body class="mission">
+    <div class="mission-shell">
+      <nav class="mission-dock"><img src="./logo.svg" alt="" /><span>ESP</span><span>DFU</span><span>UF2</span><span>TTY</span><a href="./siteStyleOptions.html"><span>...</span></a></nav>
+      <main class="mission-main">
+        <header class="mission-header"><div><p class="eyebrow">Operational flashing dashboard</p><h1>Mission Control</h1><p>Monitor transports, queue firmware jobs, and keep the active flasher in one command surface.</p></div><img class="mission-logo" src="./logo.svg" alt="" /></header>
+        <section class="mission-grid">
+          <article class="mission-card wide"><h2>Active job: ESP32-S3 production firmware</h2><p>Port selected. Firmware image loaded. Waiting for bootloader reset.</p><div class="meter"></div></article>
+          <article class="mission-card"><h2>Transports</h2><p>WebSerial online<br />WebUSB online<br />Secure context online</p></article>
+          <article class="mission-card"><h2>Queue</h2><p>ESP raw BIN<br />STM32 DFU<br />RP2040 UF2</p></article>
+          <article class="mission-card wide"><pre class="console">00:01 connect requested
+00:03 chip detected: ESP32-S3
+00:04 stub loader ready
+00:05 awaiting write confirmation</pre></article>
+          <article class="mission-card"><h2>References</h2><p>esptool-js<br />Web Serial API<br />serialterminal.com</p></article>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
