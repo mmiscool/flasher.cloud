@@ -1,6 +1,7 @@
 import { Terminal } from "@xterm/xterm";
 import "@xterm/xterm/css/xterm.css";
 import { WebDFU } from "dfu";
+import { DAPLink, WebUSB as DAPWebUSB } from "dapjs";
 import { ESPLoader, Transport } from "esptool-js";
 import "esp-web-tools/dist/web/install-button.js";
 import logoUrl from "../logo.svg";
@@ -88,6 +89,90 @@ const flashers = {
     render: renderUf2Page,
     bind: bindUf2Page,
   },
+  daplink: {
+    title: "CMSIS-DAP / DAPLink flasher",
+    eyebrow: "Hosted DAP.js",
+    utility: "DAPLink",
+    transport: "WebUSB",
+    kicker: "Flash drag-and-drop style binaries through a CMSIS-DAP or DAPLink probe.",
+    summary:
+      "Pair a DAPLink-compatible WebUSB probe, stream a local binary through DAP.js, and track flashing progress without leaving this site.",
+    devices: ["DAPLink", "CMSIS-DAP", "BBC micro:bit", "LPC boards", "Kinetis boards", "nRF52 via probe", "SAMD via probe"],
+    references: [
+      ["NPM: dapjs", "https://www.npmjs.com/package/dapjs"],
+      ["GitHub: ARMmbed/dapjs", "https://github.com/ARMmbed/dapjs"],
+      ["DAPLink", "https://github.com/ARMmbed/DAPLink"],
+      ["WebUSB API", "https://developer.mozilla.org/en-US/docs/Web/API/USB"],
+    ],
+    render: renderDapLinkPage,
+    bind: bindDapLinkPage,
+  },
+  "stm-serial": {
+    title: "STM serial ROM flasher",
+    eyebrow: "Hosted STM bootloader utility",
+    utility: "STM ROM",
+    transport: "Web Serial",
+    kicker: "Use the STM factory UART bootloader for erase, probe, and binary writes.",
+    summary:
+      "Open a Web Serial port with even parity, synchronize with the STM ROM bootloader, read the bootloader ID, erase, and write a local BIN file at a selected address.",
+    devices: ["STM32 UART bootloader", "STM32F0", "STM32F1", "STM32F3", "STM32F4", "STM32G0", "STM32L0", "GD32 UART"],
+    references: [
+      ["STM AN3155 USART protocol", "https://www.st.com/resource/en/application_note/cd00264342.pdf"],
+      ["GitHub: stm-serial-flasher", "https://github.com/Gamadril/stm-serial-flasher"],
+      ["Web Serial API", "https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API"],
+    ],
+    render: renderStmSerialPage,
+    bind: bindStmSerialPage,
+  },
+  avr: {
+    title: "AVR / Arduino bootloader flasher",
+    eyebrow: "Hosted STK500v1 utility",
+    utility: "AVR",
+    transport: "Web Serial",
+    kicker: "Flash Intel HEX files to classic Arduino-compatible AVR bootloaders.",
+    summary:
+      "Reset an AVR board over DTR, synchronize with an STK500v1 bootloader, parse Intel HEX locally, and write flash pages from the browser.",
+    devices: ["Arduino Uno", "Arduino Nano", "ATmega328P", "ATmega168", "Pro Mini", "Optiboot boards"],
+    references: [
+      ["AVRDUDE STK500 notes", "https://github.com/avrdudes/avrdude"],
+      ["Intel HEX format", "https://en.wikipedia.org/wiki/Intel_HEX"],
+      ["Web Serial API", "https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API"],
+    ],
+    render: renderAvrPage,
+    bind: bindAvrPage,
+  },
+  "manifest-builder": {
+    title: "ESP manifest builder",
+    eyebrow: "Hosted manifest helper",
+    utility: "Manifest",
+    transport: "File",
+    kicker: "Build and validate ESP Web Tools manifests for hosted firmware bundles.",
+    summary:
+      "Enter firmware metadata and flash parts, validate offsets and file paths, then generate the manifest JSON used by the ESP manifest installer page.",
+    devices: ["ESP Web Tools manifests", "ESP8266", "ESP32", "ESP32-S2", "ESP32-S3", "ESP32-C3", "ESP32-C6"],
+    references: [
+      ["ESP Web Tools manifests", "https://esphome.github.io/esp-web-tools/"],
+      ["NPM: esp-web-tools", "https://www.npmjs.com/package/esp-web-tools"],
+    ],
+    render: renderManifestBuilderPage,
+    bind: bindManifestBuilderPage,
+  },
+  compatibility: {
+    title: "Compatibility matrix",
+    eyebrow: "Device finder",
+    utility: "Matrix",
+    transport: "Reference",
+    kicker: "Search supported device families and jump to the matching hosted flasher.",
+    summary:
+      "Use this page as a device-to-flasher index when you know the board family but not the best browser flashing path.",
+    devices: ["All listed device families", "Transport selection", "Utility routing"],
+    references: [
+      ["Web Serial API", "https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API"],
+      ["WebUSB API", "https://developer.mozilla.org/en-US/docs/Web/API/USB"],
+    ],
+    render: renderCompatibilityPage,
+    bind: bindCompatibilityPage,
+  },
   "serial-flasher": {
     title: "Generic serial flasher",
     eyebrow: "Hosted serial sender",
@@ -145,16 +230,32 @@ const deviceTypes = [
   ["Adafruit SAMD51", "uf2"],
   ["Seeed XIAO", "uf2"],
   ["Arduino Nano 33", "uf2"],
+  ["DAPLink", "daplink"],
+  ["CMSIS-DAP", "daplink"],
+  ["LPC boards", "daplink"],
+  ["Kinetis boards", "daplink"],
+  ["SAMD via debug probe", "daplink"],
+  ["nRF52 via debug probe", "daplink"],
   ["STM32 DFU", "dfu"],
   ["STM32F1", "dfu"],
   ["STM32F4", "dfu"],
   ["STM32H7", "dfu"],
+  ["STM32 UART bootloader", "stm-serial"],
+  ["STM32F0", "stm-serial"],
+  ["STM32F3", "stm-serial"],
+  ["STM32G0", "stm-serial"],
+  ["STM32L0", "stm-serial"],
   ["GD32 DFU", "dfu"],
+  ["GD32 UART", "stm-serial"],
   ["nRF52832", "uf2"],
   ["nRF52840", "uf2"],
   ["Particle boards", "dfu"],
+  ["ATmega328P", "avr"],
+  ["ATmega168", "avr"],
+  ["Arduino Uno", "avr"],
+  ["Arduino Nano", "avr"],
+  ["Pro Mini", "avr"],
   ["ATmega32U4", "serial-flasher"],
-  ["Arduino Uno", "serial-flasher"],
   ["Arduino Mega", "serial-flasher"],
   ["CH32V", "dfu"],
   ["CH55x", "dfu"],
@@ -176,8 +277,10 @@ const supportRows = [
 const app = document.querySelector("#app");
 let serialTerminal;
 let serialState = null;
+let terminalLog = "";
 let espState = null;
 let dfuState = null;
+let dapState = null;
 
 window.addEventListener("hashchange", renderRoute);
 renderRoute();
@@ -422,6 +525,129 @@ function renderUf2Page() {
   `;
 }
 
+function renderDapLinkPage() {
+  return `
+    <div class="toolbar">
+      <button id="dap-connect" class="button primary">Pair DAPLink probe</button>
+      <button id="dap-disconnect" class="button secondary" disabled>Disconnect</button>
+    </div>
+    <div class="input-row">
+      <label class="file-picker">
+        Firmware BIN
+        <input id="dap-file" type="file" accept=".bin,application/octet-stream" />
+      </label>
+      <label>
+        Page size
+        <input id="dap-page-size" type="number" min="128" step="128" value="1024" />
+      </label>
+      <button id="dap-flash" class="button primary" disabled>Flash via DAPLink</button>
+    </div>
+    <progress id="dap-progress" value="0" max="100"></progress>
+    <pre id="dap-log" class="log-box">DAPLink log.</pre>
+  `;
+}
+
+function renderStmSerialPage() {
+  return `
+    <div class="toolbar">
+      <label for="stm-baud">Baud</label>
+      <select id="stm-baud">
+        <option>9600</option>
+        <option>57600</option>
+        <option selected>115200</option>
+        <option>230400</option>
+      </select>
+      <button id="stm-connect" class="button primary">Connect STM ROM</button>
+      <button id="stm-probe" class="button secondary" disabled>Probe</button>
+      <button id="stm-erase" class="button secondary" disabled>Erase</button>
+    </div>
+    <div class="input-row">
+      <label class="file-picker">
+        Firmware BIN
+        <input id="stm-file" type="file" accept=".bin,application/octet-stream" />
+      </label>
+      <label>
+        Start address
+        <input id="stm-address" type="text" value="0x08000000" />
+      </label>
+      <button id="stm-write" class="button primary" disabled>Write STM</button>
+    </div>
+    <progress id="stm-progress" value="0" max="100"></progress>
+    <pre id="stm-log" class="log-box">STM serial bootloader log.</pre>
+  `;
+}
+
+function renderAvrPage() {
+  return `
+    <div class="toolbar">
+      <label for="avr-baud">Baud</label>
+      <select id="avr-baud">
+        <option>57600</option>
+        <option selected>115200</option>
+      </select>
+      <label for="avr-page-size">Page bytes</label>
+      <input id="avr-page-size" type="number" min="64" step="64" value="128" />
+    </div>
+    <div class="input-row">
+      <label class="file-picker">
+        Intel HEX
+        <input id="avr-file" type="file" accept=".hex,text/plain" />
+      </label>
+      <button id="avr-flash" class="button primary">Reset and flash STK500v1</button>
+    </div>
+    <progress id="avr-progress" value="0" max="100"></progress>
+    <pre id="avr-log" class="log-box">AVR bootloader log.</pre>
+  `;
+}
+
+function renderManifestBuilderPage() {
+  return `
+    <div class="input-row">
+      <label>
+        Name
+        <input id="manifest-name" type="text" value="flasher.cloud firmware" />
+      </label>
+      <label>
+        Version
+        <input id="manifest-version" type="text" value="1.0.0" />
+      </label>
+      <label>
+        Chip family
+        <select id="manifest-chip-family">
+          <option selected>ESP32</option>
+          <option>ESP8266</option>
+          <option>ESP32-S2</option>
+          <option>ESP32-S3</option>
+          <option>ESP32-C3</option>
+          <option>ESP32-C6</option>
+        </select>
+      </label>
+    </div>
+    <div id="manifest-parts" class="file-stack">
+      ${manifestPartRow("0x1000", "/firmware/bootloader.bin")}
+      ${manifestPartRow("0x8000", "/firmware/partitions.bin")}
+      ${manifestPartRow("0x10000", "/firmware/firmware.bin")}
+    </div>
+    <div class="toolbar">
+      <button id="manifest-add-part" class="button secondary">Add part</button>
+      <button id="manifest-generate" class="button primary">Generate manifest</button>
+      <button id="manifest-download" class="button secondary" disabled>Download JSON</button>
+    </div>
+    <pre id="manifest-output" class="log-box">Manifest JSON will appear here.</pre>
+  `;
+}
+
+function renderCompatibilityPage() {
+  return `
+    <div class="input-row">
+      <input id="compat-filter" type="search" placeholder="Filter devices, transports, or utilities" />
+    </div>
+    <div id="compat-table" class="tile-grid">
+      ${compatibilityCards(deviceTypes)}
+    </div>
+  `;
+}
+
 function renderGenericSerialPage() {
   return `
     <div class="input-row">
@@ -451,6 +677,12 @@ function renderGenericSerialPage() {
         <input id="generic-file" type="file" />
       </label>
       <input id="generic-prefix" type="text" placeholder="Optional command before transfer" />
+      <select id="generic-line-ending" aria-label="Prefix line ending">
+        <option value="crlf">CRLF</option>
+        <option value="lf">LF</option>
+        <option value="cr">CR</option>
+        <option value="">None</option>
+      </select>
       <button id="generic-send" class="button primary">Send over serial</button>
     </div>
     <progress id="generic-progress" value="0" max="100"></progress>
@@ -472,7 +704,22 @@ function renderSerialTerminalPage() {
       </select>
       <button id="terminal-connect" class="button primary">Connect</button>
       <button id="terminal-disconnect" class="button secondary" disabled>Disconnect</button>
+      <select id="terminal-line-ending" aria-label="Send line ending">
+        <option value="crlf">CRLF</option>
+        <option value="lf">LF</option>
+        <option value="cr">CR</option>
+        <option value="">None</option>
+      </select>
+      <button id="terminal-send-macro" class="button secondary" disabled>Send macro</button>
+      <button id="terminal-save-log" class="button ghost">Save log</button>
       <a class="button ghost" href="https://serialterminal.com">serialterminal.com</a>
+    </div>
+    <div class="input-row">
+      <input id="terminal-macro" type="text" placeholder="Command or macro text" />
+      <label class="check">
+        <input id="terminal-timestamps" type="checkbox" />
+        Timestamp RX lines
+      </label>
     </div>
     <div id="terminal" class="terminal-host"></div>
   `;
@@ -491,6 +738,36 @@ function espFileRow(offset) {
       </label>
     </div>
   `;
+}
+
+function manifestPartRow(offset, path) {
+  return `
+    <div class="manifest-part-row esp-file-row">
+      <label>
+        Offset
+        <input class="manifest-offset" type="text" value="${offset}" />
+      </label>
+      <label>
+        Path
+        <input class="manifest-path" type="text" value="${path}" />
+      </label>
+    </div>
+  `;
+}
+
+function compatibilityCards(rows) {
+  return rows
+    .map(([device, target]) => {
+      const flasher = flashers[target];
+      return `
+        <a class="family-tile compat-card" href="#/flasher/${target}" data-filter="${`${device} ${flasher.title} ${flasher.transport} ${flasher.utility}`.toLowerCase()}">
+          <span>${flasher.transport}</span>
+          <h3>${device}</h3>
+          <p>${flasher.title}</p>
+        </a>
+      `;
+    })
+    .join("");
 }
 
 function bindEspManifestPage() {
@@ -515,6 +792,35 @@ function bindUf2Page() {
   document.querySelector("#uf2-reset").addEventListener("click", uf2BootReset);
 }
 
+function bindDapLinkPage() {
+  document.querySelector("#dap-connect").addEventListener("click", connectDapLink);
+  document.querySelector("#dap-disconnect").addEventListener("click", disconnectDapLink);
+  document.querySelector("#dap-flash").addEventListener("click", flashDapLink);
+}
+
+function bindStmSerialPage() {
+  document.querySelector("#stm-connect").addEventListener("click", connectStmSerial);
+  document.querySelector("#stm-probe").addEventListener("click", probeStmSerial);
+  document.querySelector("#stm-erase").addEventListener("click", eraseStmSerial);
+  document.querySelector("#stm-write").addEventListener("click", writeStmSerial);
+}
+
+function bindAvrPage() {
+  document.querySelector("#avr-flash").addEventListener("click", flashAvr);
+}
+
+function bindManifestBuilderPage() {
+  document.querySelector("#manifest-add-part").addEventListener("click", () => {
+    document.querySelector("#manifest-parts").insertAdjacentHTML("beforeend", manifestPartRow("0x10000", "/firmware/firmware.bin"));
+  });
+  document.querySelector("#manifest-generate").addEventListener("click", generateManifest);
+  document.querySelector("#manifest-download").addEventListener("click", downloadManifest);
+}
+
+function bindCompatibilityPage() {
+  document.querySelector("#compat-filter").addEventListener("input", filterCompatibility);
+}
+
 function bindGenericSerialPage() {
   document.querySelector("#generic-send").addEventListener("click", sendGenericSerial);
 }
@@ -523,6 +829,8 @@ function bindSerialTerminalPage() {
   initTerminal();
   document.querySelector("#terminal-connect").addEventListener("click", connectTerminal);
   document.querySelector("#terminal-disconnect").addEventListener("click", disconnectTerminal);
+  document.querySelector("#terminal-send-macro").addEventListener("click", sendTerminalMacro);
+  document.querySelector("#terminal-save-log").addEventListener("click", saveTerminalLog);
 }
 
 function initTerminal() {
@@ -541,10 +849,13 @@ function initTerminal() {
     },
   });
   serialTerminal.open(host);
+  terminalLog = "";
   serialTerminal.write("Serial terminal ready.\r\n");
+  terminalLog += "Serial terminal ready.\n";
   serialTerminal.onData((data) => {
     if (!serialState?.writer) return;
     serialState.writer.write(new TextEncoder().encode(data));
+    terminalLog += data;
   });
 }
 
@@ -578,6 +889,157 @@ function setProgress(id, done, total) {
   const node = document.querySelector(id);
   if (!node) return;
   node.value = total ? Math.round((done / total) * 100) : 0;
+}
+
+function lineEnding(value) {
+  return { crlf: "\r\n", lf: "\n", cr: "\r" }[value] || "";
+}
+
+function hexByte(byte) {
+  return `0x${byte.toString(16).padStart(2, "0")}`;
+}
+
+async function stmReadByte(state, timeout = 3000) {
+  const bytes = await stmReadBytes(state, 1, timeout);
+  return bytes[0];
+}
+
+async function stmReadBytes(state, length, timeout = 3000) {
+  const output = new Uint8Array(length);
+  let offset = 0;
+  const deadline = Date.now() + timeout;
+  while (state.rx.length && offset < length) {
+    output[offset] = state.rx.shift();
+    offset += 1;
+  }
+  while (offset < length) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) throw new Error("Timed out waiting for STM bootloader.");
+    const read = state.reader.read();
+    const timer = new Promise((_, reject) => window.setTimeout(() => reject(new Error("Timed out waiting for STM bootloader.")), remaining));
+    const { value, done } = await Promise.race([read, timer]);
+    if (done) throw new Error("STM serial port closed.");
+    if (!value) continue;
+    const needed = length - offset;
+    output.set(value.slice(0, needed), offset);
+    offset += Math.min(value.length, needed);
+    if (value.length > needed) state.rx.push(...value.slice(needed));
+  }
+  return output;
+}
+
+async function stmExpectAck(state, timeout) {
+  const byte = await stmReadByte(state, timeout);
+  if (byte !== 0x79) throw new Error(`Expected ACK, received ${hexByte(byte)}.`);
+}
+
+async function stmWrite(state, bytes) {
+  await state.writer.write(bytes);
+}
+
+async function stmCommand(state, command) {
+  await stmWrite(state, Uint8Array.of(command, command ^ 0xff));
+  await stmExpectAck(state);
+}
+
+async function stmAddress(state, address) {
+  const bytes = Uint8Array.of((address >>> 24) & 0xff, (address >>> 16) & 0xff, (address >>> 8) & 0xff, address & 0xff);
+  await stmWrite(state, Uint8Array.of(...bytes, bytes[0] ^ bytes[1] ^ bytes[2] ^ bytes[3]));
+  await stmExpectAck(state);
+}
+
+async function stmWriteBlock(state, chunk) {
+  const padded = new Uint8Array(chunk.length);
+  padded.set(chunk);
+  let checksum = padded.length - 1;
+  for (const byte of padded) checksum ^= byte;
+  await stmWrite(state, Uint8Array.of(padded.length - 1, ...padded, checksum));
+  await stmExpectAck(state, 5000);
+}
+
+async function pulseDtr(port) {
+  await port.setSignals({ dataTerminalReady: false, requestToSend: false });
+  await new Promise((resolve) => window.setTimeout(resolve, 100));
+  await port.setSignals({ dataTerminalReady: true, requestToSend: true });
+  await new Promise((resolve) => window.setTimeout(resolve, 400));
+}
+
+async function avrReadByte(state, timeout = 2000) {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    const read = state.reader.read();
+    const timer = new Promise((_, reject) => window.setTimeout(() => reject(new Error("Timed out waiting for AVR bootloader.")), deadline - Date.now()));
+    const { value, done } = await Promise.race([read, timer]);
+    if (done) throw new Error("AVR serial port closed.");
+    if (value?.length) return value[0];
+  }
+  throw new Error("Timed out waiting for AVR bootloader.");
+}
+
+async function avrCommand(state, command, timeout) {
+  await state.writer.write(Uint8Array.of(...command, 0x20));
+  const insync = await avrReadByte(state, timeout);
+  const ok = await avrReadByte(state, timeout);
+  if (insync !== 0x14 || ok !== 0x10) throw new Error(`AVR command failed: ${hexByte(insync)} ${hexByte(ok)}.`);
+}
+
+async function avrSync(state) {
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    try {
+      await avrCommand(state, [0x30], 500);
+      logTo("#avr-log", "Synchronized with STK500v1 bootloader.");
+      return;
+    } catch {
+      await new Promise((resolve) => window.setTimeout(resolve, 100));
+    }
+  }
+  throw new Error("Could not synchronize with STK500v1 bootloader.");
+}
+
+async function avrLoadAddress(state, byteAddress) {
+  const wordAddress = byteAddress >> 1;
+  await avrCommand(state, [0x55, wordAddress & 0xff, (wordAddress >> 8) & 0xff]);
+}
+
+async function avrProgramPage(state, page) {
+  await avrCommand(state, [0x64, (page.length >> 8) & 0xff, page.length & 0xff, 0x46, ...page], 4000);
+}
+
+function parseIntelHex(text) {
+  const memory = new Map();
+  let upper = 0;
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    if (!line.startsWith(":")) throw new Error(`Invalid HEX line: ${line}`);
+    const count = Number.parseInt(line.slice(1, 3), 16);
+    const address = Number.parseInt(line.slice(3, 7), 16);
+    const type = Number.parseInt(line.slice(7, 9), 16);
+    const data = [];
+    let sum = count + (address >> 8) + (address & 0xff) + type;
+    for (let index = 0; index < count; index += 1) {
+      const value = Number.parseInt(line.slice(9 + index * 2, 11 + index * 2), 16);
+      data.push(value);
+      sum += value;
+    }
+    sum = (sum + Number.parseInt(line.slice(9 + count * 2, 11 + count * 2), 16)) & 0xff;
+    if (sum !== 0) throw new Error(`HEX checksum failed at ${line.slice(0, 9)}.`);
+    if (type === 0x00) {
+      const base = upper + address;
+      data.forEach((value, index) => memory.set(base + index, value));
+    } else if (type === 0x01) {
+      break;
+    } else if (type === 0x04) {
+      upper = ((data[0] << 8) | data[1]) << 16;
+    }
+  }
+  const addresses = Array.from(memory.keys()).sort((a, b) => a - b);
+  if (!addresses.length) throw new Error("HEX file contains no data.");
+  const start = addresses[0];
+  const end = addresses[addresses.length - 1];
+  const bytes = new Uint8Array(end - start + 1).fill(0xff);
+  for (const address of addresses) bytes[address - start] = memory.get(address);
+  return { start, bytes };
 }
 
 function renderEspInstaller() {
@@ -773,6 +1235,222 @@ async function uf2BootReset() {
   }
 }
 
+async function connectDapLink() {
+  try {
+    assertUsbSupport();
+    const device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0d28 }] });
+    const transport = new DAPWebUSB(device);
+    const target = new DAPLink(transport);
+    target.on(DAPLink.EVENT_PROGRESS, (progress) => {
+      const value = progress <= 1 ? progress * 100 : progress;
+      document.querySelector("#dap-progress").value = Math.max(0, Math.min(100, Math.round(value)));
+    });
+    await target.connect();
+    dapState = { target, device };
+    document.querySelector("#dap-flash").disabled = false;
+    document.querySelector("#dap-disconnect").disabled = false;
+    document.querySelector("#dap-connect").disabled = true;
+    logTo("#dap-log", `Connected ${device.productName || "DAPLink probe"}.`);
+  } catch (error) {
+    logTo("#dap-log", `DAPLink connect failed: ${error.message}`);
+  }
+}
+
+async function flashDapLink() {
+  if (!dapState) return;
+  try {
+    const file = document.querySelector("#dap-file").files[0];
+    if (!file) throw new Error("Choose a BIN file.");
+    const pageSize = Number(document.querySelector("#dap-page-size").value) || 1024;
+    document.querySelector("#dap-progress").value = 0;
+    logTo("#dap-log", `Flashing ${file.name} with ${pageSize} byte pages...`);
+    await dapState.target.flash(await file.arrayBuffer(), pageSize);
+    logTo("#dap-log", "DAPLink flash complete.");
+  } catch (error) {
+    logTo("#dap-log", `DAPLink flash failed: ${error.message}`);
+  }
+}
+
+async function disconnectDapLink() {
+  if (!dapState) return;
+  try {
+    await dapState.target.disconnect();
+    logTo("#dap-log", "DAPLink disconnected.");
+  } catch (error) {
+    logTo("#dap-log", `Disconnect failed: ${error.message}`);
+  } finally {
+    dapState = null;
+    document.querySelector("#dap-flash").disabled = true;
+    document.querySelector("#dap-disconnect").disabled = true;
+    document.querySelector("#dap-connect").disabled = false;
+  }
+}
+
+async function connectStmSerial() {
+  try {
+    assertSerialSupport();
+    const port = await navigator.serial.requestPort();
+    await port.open({
+      baudRate: Number(document.querySelector("#stm-baud").value),
+      dataBits: 8,
+      stopBits: 1,
+      parity: "even",
+      flowControl: "none",
+    });
+    const reader = port.readable.getReader();
+    const writer = port.writable.getWriter();
+    const state = { port, reader, writer, rx: [] };
+    await writer.write(Uint8Array.of(0x7f));
+    await stmExpectAck(state);
+    serialState = state;
+    document.querySelector("#stm-probe").disabled = false;
+    document.querySelector("#stm-erase").disabled = false;
+    document.querySelector("#stm-write").disabled = false;
+    logTo("#stm-log", "Synchronized with STM ROM bootloader.");
+  } catch (error) {
+    logTo("#stm-log", `STM connect failed: ${error.message}`);
+  }
+}
+
+async function probeStmSerial() {
+  try {
+    const state = serialState;
+    if (!state) throw new Error("Connect first.");
+    await stmCommand(state, 0x00);
+    const length = (await stmReadByte(state)) + 1;
+    const data = await stmReadBytes(state, length + 1);
+    logTo("#stm-log", `Bootloader version 0x${data[0].toString(16).padStart(2, "0")}; commands: ${Array.from(data.slice(1)).map(hexByte).join(" ")}`);
+    await stmCommand(state, 0x02);
+    const idLength = (await stmReadByte(state)) + 1;
+    const id = await stmReadBytes(state, idLength);
+    await stmExpectAck(state);
+    logTo("#stm-log", `Chip ID: 0x${Array.from(id).map((byte) => byte.toString(16).padStart(2, "0")).join("")}`);
+  } catch (error) {
+    logTo("#stm-log", `STM probe failed: ${error.message}`);
+  }
+}
+
+async function eraseStmSerial() {
+  try {
+    const state = serialState;
+    if (!state) throw new Error("Connect first.");
+    logTo("#stm-log", "Requesting global erase...");
+    try {
+      await stmCommand(state, 0x44);
+      await stmWrite(state, Uint8Array.of(0xff, 0xff, 0x00));
+      await stmExpectAck(state, 15000);
+    } catch {
+      await stmCommand(state, 0x43);
+      await stmWrite(state, Uint8Array.of(0xff, 0x00));
+      await stmExpectAck(state, 15000);
+    }
+    logTo("#stm-log", "STM erase complete.");
+  } catch (error) {
+    logTo("#stm-log", `STM erase failed: ${error.message}`);
+  }
+}
+
+async function writeStmSerial() {
+  try {
+    const state = serialState;
+    if (!state) throw new Error("Connect first.");
+    const file = document.querySelector("#stm-file").files[0];
+    if (!file) throw new Error("Choose a BIN file.");
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const baseAddress = parseAddress(document.querySelector("#stm-address").value);
+    for (let offset = 0; offset < bytes.length; offset += 256) {
+      const chunk = bytes.slice(offset, offset + 256);
+      await stmCommand(state, 0x31);
+      await stmAddress(state, baseAddress + offset);
+      await stmWriteBlock(state, chunk);
+      setProgress("#stm-progress", Math.min(offset + chunk.length, bytes.length), bytes.length);
+    }
+    logTo("#stm-log", `Wrote ${bytes.length.toLocaleString()} bytes to 0x${baseAddress.toString(16)}.`);
+  } catch (error) {
+    logTo("#stm-log", `STM write failed: ${error.message}`);
+  }
+}
+
+async function flashAvr() {
+  let state = null;
+  try {
+    assertSerialSupport();
+    const file = document.querySelector("#avr-file").files[0];
+    if (!file) throw new Error("Choose an Intel HEX file.");
+    const image = parseIntelHex(await file.text());
+    const port = await navigator.serial.requestPort();
+    await port.open({ baudRate: Number(document.querySelector("#avr-baud").value) });
+    await pulseDtr(port);
+    state = { port, reader: port.readable.getReader(), writer: port.writable.getWriter() };
+    await avrSync(state);
+    await avrCommand(state, [0x50]);
+    const pageSize = Number(document.querySelector("#avr-page-size").value) || 128;
+    for (let offset = 0; offset < image.bytes.length; offset += pageSize) {
+      const page = image.bytes.slice(offset, offset + pageSize);
+      await avrLoadAddress(state, image.start + offset);
+      await avrProgramPage(state, page);
+      setProgress("#avr-progress", Math.min(offset + page.length, image.bytes.length), image.bytes.length);
+    }
+    await avrCommand(state, [0x51]);
+    logTo("#avr-log", `Flashed ${image.bytes.length.toLocaleString()} bytes from 0x${image.start.toString(16)}.`);
+  } catch (error) {
+    logTo("#avr-log", `AVR flash failed: ${error.message}`);
+  } finally {
+    if (state) {
+      try {
+        state.reader.releaseLock();
+        state.writer.releaseLock();
+        await state.port.close();
+      } catch {
+        // Ignore cleanup failures after bootloader resets.
+      }
+    }
+  }
+}
+
+function generateManifest() {
+  try {
+    const parts = Array.from(document.querySelectorAll(".manifest-part-row")).map((row) => {
+      const offset = parseAddress(row.querySelector(".manifest-offset").value);
+      const path = row.querySelector(".manifest-path").value.trim();
+      if (!path) throw new Error("Every manifest part needs a path.");
+      return { path, offset };
+    });
+    const manifest = {
+      name: document.querySelector("#manifest-name").value.trim(),
+      version: document.querySelector("#manifest-version").value.trim(),
+      builds: [
+        {
+          chipFamily: document.querySelector("#manifest-chip-family").value,
+          parts,
+        },
+      ],
+    };
+    document.querySelector("#manifest-output").textContent = JSON.stringify(manifest, null, 2);
+    document.querySelector("#manifest-download").disabled = false;
+  } catch (error) {
+    document.querySelector("#manifest-output").textContent = `Manifest error: ${error.message}`;
+    document.querySelector("#manifest-download").disabled = true;
+  }
+}
+
+function downloadManifest() {
+  const blob = new Blob([document.querySelector("#manifest-output").textContent], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "manifest.json";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function filterCompatibility() {
+  const query = document.querySelector("#compat-filter").value.trim().toLowerCase();
+  for (const card of document.querySelectorAll(".compat-card")) {
+    card.hidden = query && !card.dataset.filter.includes(query);
+  }
+}
+
 async function sendGenericSerial() {
   try {
     assertSerialSupport();
@@ -783,10 +1461,11 @@ async function sendGenericSerial() {
     const chunkSize = Number(document.querySelector("#generic-chunk").value);
     const delay = Number(document.querySelector("#generic-delay").value);
     const prefix = document.querySelector("#generic-prefix").value;
+    const ending = lineEnding(document.querySelector("#generic-line-ending").value);
     const bytes = new Uint8Array(await file.arrayBuffer());
     await port.open({ baudRate });
     const writer = port.writable.getWriter();
-    if (prefix) await writer.write(new TextEncoder().encode(`${prefix}\r\n`));
+    if (prefix) await writer.write(new TextEncoder().encode(`${prefix}${ending}`));
     for (let offset = 0; offset < bytes.length; offset += chunkSize) {
       await writer.write(bytes.slice(offset, offset + chunkSize));
       setProgress("#generic-progress", Math.min(offset + chunkSize, bytes.length), bytes.length);
@@ -809,10 +1488,13 @@ async function connectTerminal() {
     serialState = { port, writer, keepReading: true };
     document.querySelector("#terminal-connect").disabled = true;
     document.querySelector("#terminal-disconnect").disabled = false;
+    document.querySelector("#terminal-send-macro").disabled = false;
     serialTerminal.write("Connected.\r\n");
+    terminalLog += "Connected.\n";
     readTerminalLoop(port);
   } catch (error) {
     serialTerminal.write(`Connect failed: ${error.message}\r\n`);
+    terminalLog += `Connect failed: ${error.message}\n`;
   }
 }
 
@@ -825,10 +1507,21 @@ async function readTerminalLoop(port) {
       while (serialState?.keepReading) {
         const { value, done } = await reader.read();
         if (done) break;
-        if (value) serialTerminal.write(decoder.decode(value));
+        if (value) {
+          let text = decoder.decode(value);
+          if (document.querySelector("#terminal-timestamps")?.checked) {
+            text = text
+              .split(/(\r?\n)/)
+              .map((part) => (part && !/^\r?\n$/.test(part) ? `[${new Date().toLocaleTimeString()}] ${part}` : part))
+              .join("");
+          }
+          serialTerminal.write(text);
+          terminalLog += text;
+        }
       }
     } catch (error) {
       serialTerminal.write(`Read stopped: ${error.message}\r\n`);
+      terminalLog += `Read stopped: ${error.message}\n`;
     } finally {
       reader.releaseLock();
     }
@@ -843,11 +1536,32 @@ async function disconnectTerminal() {
     serialState.writer?.releaseLock();
     await serialState.port.close();
     serialTerminal.write("Disconnected.\r\n");
+    terminalLog += "Disconnected.\n";
   } catch (error) {
     serialTerminal.write(`Disconnect failed: ${error.message}\r\n`);
+    terminalLog += `Disconnect failed: ${error.message}\n`;
   } finally {
     serialState = null;
     document.querySelector("#terminal-connect").disabled = false;
     document.querySelector("#terminal-disconnect").disabled = true;
+    document.querySelector("#terminal-send-macro").disabled = true;
   }
+}
+
+async function sendTerminalMacro() {
+  if (!serialState?.writer) return;
+  const text = document.querySelector("#terminal-macro").value;
+  const ending = lineEnding(document.querySelector("#terminal-line-ending").value);
+  await serialState.writer.write(new TextEncoder().encode(`${text}${ending}`));
+  terminalLog += `${text}${ending}`;
+}
+
+function saveTerminalLog() {
+  const blob = new Blob([terminalLog], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `serial-log-${new Date().toISOString().replace(/[:.]/g, "-")}.txt`;
+  link.click();
+  URL.revokeObjectURL(url);
 }

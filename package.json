@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@xterm/xterm": "^6.0.0",
+    "dapjs": "^2.3.0",
     "dfu": "^0.1.5",
     "esp-web-tools": "^10.2.1",
     "esptool-js": "^0.6.0"
